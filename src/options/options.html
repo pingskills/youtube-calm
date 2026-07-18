@@ -174,6 +174,18 @@
         <label class="sub-label" for="daily-limit-input">Minutes per day</label>
         <input type="number" id="daily-limit-input" min="5" max="480" step="5" />
       </div>
+
+      <div class="row" id="per-day-toggle-row">
+        <div>
+          <div class="row-title">Per-day schedules</div>
+          <div class="row-desc">Different limits for each day — stricter weekdays, relaxed weekends.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="perDayLimitsEnabled" /><span class="track"></span></label>
+      </div>
+
+      <div class="per-day-grid" id="per-day-grid">
+        <!-- populated by options.js -->
+      </div>
     </section>
 
     <!-- Intentionality section -->

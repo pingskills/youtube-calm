@@ -4,31 +4,58 @@ const ALL_KEYS = [
   'hideNotificationBadge', 'hideLiveChat', 'hideMerch', 'grayscale',
   'sessionTimerVisible', 'dailyLimitEnabled', 'dailyLimitMinutes',
   'intentionalityPrompt', 'allowlistedChannels',
+  'perDayLimitsEnabled', 'perDayMinutes',
 ];
 
-// --- Load saved settings into UI ---
+// Mon–Sun order for the grid (getDay(): 0=Sun … 6=Sat)
+const DAYS = [
+  { day: 1, label: 'Mon' }, { day: 2, label: 'Tue' }, { day: 3, label: 'Wed' },
+  { day: 4, label: 'Thu' }, { day: 5, label: 'Fri' }, { day: 6, label: 'Sat' },
+  { day: 0, label: 'Sun' },
+];
+const DEFAULT_PER_DAY = { 0: 90, 1: 30, 2: 30, 3: 30, 4: 30, 5: 30, 6: 90 };
+
+// --- Build per-day grid ---
+
+const perDayGrid = document.getElementById('per-day-grid');
+const todayDow = new Date().getDay();
+
+perDayGrid.innerHTML = DAYS.map(({ day, label }) => `
+  <div class="day-col${day === todayDow ? ' is-today' : ''}">
+    <div class="day-label">${label}</div>
+    <input class="day-input" type="number" data-day="${day}" min="5" max="480" step="5" />
+    <div class="day-unit">min</div>
+  </div>
+`).join('');
+
+// --- Load all settings ---
 
 chrome.storage.local.get(ALL_KEYS, (data) => {
   for (const key of ALL_KEYS) {
     const el = document.querySelector(`[data-key="${key}"]`);
-    if (!el) continue;
-    if (el.type === 'checkbox') el.checked = !!data[key];
+    if (!el || el.type !== 'checkbox') continue;
+    el.checked = !!data[key];
   }
+
   document.getElementById('daily-limit-input').value = data.dailyLimitMinutes ?? 60;
-  syncLimitRow(!!data.dailyLimitEnabled);
+
+  const perDay = data.perDayMinutes || DEFAULT_PER_DAY;
+  document.querySelectorAll('.day-input').forEach((inp) => {
+    inp.value = perDay[parseInt(inp.dataset.day)] ?? 60;
+  });
 
   allowlistedChannels = data.allowlistedChannels || [];
   renderAllowlist();
+
+  syncTimeSection();
 });
 
 // --- Week stats & chart ---
 
 chrome.runtime.sendMessage({ type: 'GET_WEEK_STATS' }, (res) => {
   if (chrome.runtime.lastError || !res) return;
-
   document.getElementById('stat-today').textContent = formatSeconds(res.days[6].seconds);
   document.getElementById('stat-week').textContent = formatSeconds(res.weekTotal);
-
   renderWeekChart(res.days);
 });
 
@@ -56,21 +83,35 @@ function renderWeekChart(days) {
 // --- Checkbox changes ---
 
 document.querySelectorAll('[data-key]').forEach((el) => {
+  if (el.type !== 'checkbox') return;
   el.addEventListener('change', () => {
     const key = el.dataset.key;
-    const val = el.type === 'checkbox' ? el.checked : el.value;
-    chrome.storage.local.set({ [key]: val });
-    if (key === 'dailyLimitEnabled') syncLimitRow(el.checked);
+    chrome.storage.local.set({ [key]: el.checked });
+    if (key === 'dailyLimitEnabled' || key === 'perDayLimitsEnabled') {
+      syncTimeSection();
+    }
   });
 });
 
 // --- Daily limit minutes ---
 
-const limitInput = document.getElementById('daily-limit-input');
-limitInput.addEventListener('change', () => {
-  const val = Math.max(5, Math.min(480, parseInt(limitInput.value, 10) || 60));
-  limitInput.value = val;
+document.getElementById('daily-limit-input').addEventListener('change', (e) => {
+  const val = clampMinutes(parseInt(e.target.value, 10));
+  e.target.value = val;
   chrome.storage.local.set({ dailyLimitMinutes: val });
+});
+
+// --- Per-day inputs ---
+
+perDayGrid.addEventListener('change', (e) => {
+  if (!e.target.classList.contains('day-input')) return;
+  const day = parseInt(e.target.dataset.day);
+  const val = clampMinutes(parseInt(e.target.value, 10));
+  e.target.value = val;
+  chrome.storage.local.get('perDayMinutes', (data) => {
+    const updated = { ...(data.perDayMinutes || DEFAULT_PER_DAY), [day]: val };
+    chrome.storage.local.set({ perDayMinutes: updated });
+  });
 });
 
 // --- Allowlist ---
@@ -126,17 +167,40 @@ document.getElementById('reset-defaults').addEventListener('click', () => {
         if (el && el.type === 'checkbox') el.checked = !!data[key];
       }
       document.getElementById('daily-limit-input').value = data.dailyLimitMinutes ?? 60;
-      syncLimitRow(!!data.dailyLimitEnabled);
+
+      const perDay = data.perDayMinutes || DEFAULT_PER_DAY;
+      document.querySelectorAll('.day-input').forEach((inp) => {
+        inp.value = perDay[parseInt(inp.dataset.day)] ?? 60;
+      });
+
       allowlistedChannels = data.allowlistedChannels || [];
       renderAllowlist();
+      syncTimeSection();
     });
   });
 });
 
 // --- Helpers ---
 
-function syncLimitRow(enabled) {
-  document.getElementById('limit-minutes-row').classList.toggle('hidden', !enabled);
+function syncTimeSection() {
+  const dailyEnabled = document.querySelector('[data-key="dailyLimitEnabled"]').checked;
+  const perDayEnabled = document.querySelector('[data-key="perDayLimitsEnabled"]').checked;
+
+  // Single limit input: show when daily on and per-day off
+  document.getElementById('limit-minutes-row')
+    .classList.toggle('hidden', !dailyEnabled || perDayEnabled);
+
+  // Per-day toggle row: show when daily is on
+  document.getElementById('per-day-toggle-row')
+    .classList.toggle('hidden', !dailyEnabled);
+
+  // Per-day grid: show when both are on
+  document.getElementById('per-day-grid')
+    .classList.toggle('hidden', !dailyEnabled || !perDayEnabled);
+}
+
+function clampMinutes(n) {
+  return Math.max(5, Math.min(480, isNaN(n) ? 60 : n));
 }
 
 function formatSeconds(total) {

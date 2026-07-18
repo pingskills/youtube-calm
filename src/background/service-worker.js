@@ -29,6 +29,10 @@ const DEFAULTS = {
   // Allowlist
   allowlistedChannels: [],
 
+  // Per-day schedules (getDay(): 0=Sun … 6=Sat)
+  perDayLimitsEnabled: false,
+  perDayMinutes: { 0: 90, 1: 30, 2: 30, 3: 30, 4: 30, 5: 30, 6: 90 },
+
   // Stats (managed internally — excluded from defaults reset)
   watchToday: 0,
   lastResetDate: '',
@@ -71,7 +75,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   if (msg.type === 'TICK') {
     chrome.storage.local.get(
-      ['watchToday', 'watchHistory', 'lastResetDate', 'dailyLimitEnabled', 'dailyLimitMinutes'],
+      ['watchToday', 'watchHistory', 'lastResetDate', 'dailyLimitEnabled', 'dailyLimitMinutes', 'perDayLimitsEnabled', 'perDayMinutes'],
       (data) => {
         const today = todayStr();
 
@@ -94,9 +98,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         if (data.lastResetDate !== today) updates.lastResetDate = today;
         chrome.storage.local.set(updates);
 
-        const limitSeconds = (data.dailyLimitMinutes || 60) * 60;
+        let effectiveMinutes = data.dailyLimitMinutes || 60;
+        if (data.perDayLimitsEnabled && data.perDayMinutes) {
+          const dayOfWeek = new Date().getDay();
+          effectiveMinutes = data.perDayMinutes[dayOfWeek] ?? effectiveMinutes;
+        }
         sendResponse({
-          limitReached: data.dailyLimitEnabled && newTotal >= limitSeconds,
+          limitReached: data.dailyLimitEnabled && newTotal >= effectiveMinutes * 60,
           watchToday: newTotal,
         });
       }
