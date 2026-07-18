@@ -71,10 +71,14 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
   if (msg.type === 'TICK') {
     chrome.storage.local.get(
-      ['watchToday', 'watchHistory', 'dailyLimitEnabled', 'dailyLimitMinutes'],
+      ['watchToday', 'watchHistory', 'lastResetDate', 'dailyLimitEnabled', 'dailyLimitMinutes'],
       (data) => {
         const today = todayStr();
-        const newTotal = (data.watchToday || 0) + 1;
+
+        // Guard against the up-to-60s gap where the alarm hasn't fired yet
+        // but the date has already rolled over past midnight
+        const base = data.lastResetDate === today ? (data.watchToday || 0) : 0;
+        const newTotal = base + 1;
 
         // Roll today's seconds into the persistent history
         const history = { ...(data.watchHistory || {}), [today]: newTotal };
@@ -86,7 +90,9 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           if (d < cutoff) delete history[d];
         }
 
-        chrome.storage.local.set({ watchToday: newTotal, watchHistory: history });
+        const updates = { watchToday: newTotal, watchHistory: history };
+        if (data.lastResetDate !== today) updates.lastResetDate = today;
+        chrome.storage.local.set(updates);
 
         const limitSeconds = (data.dailyLimitMinutes || 60) * 60;
         sendResponse({

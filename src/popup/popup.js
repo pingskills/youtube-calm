@@ -48,6 +48,50 @@ chrome.runtime.sendMessage({ type: 'GET_WATCH_TODAY' }, (res) => {
   document.getElementById('watch-time').textContent = formatSeconds(res.watchToday);
 });
 
+// --- Channel allowlist row ---
+
+function parseChannel(url) {
+  try {
+    const path = new URL(url).pathname;
+    const m = path.match(/^\/@([^/?]+)/)
+      || path.match(/^\/channel\/([^/?]+)/)
+      || path.match(/^\/c\/([^/?]+)/)
+      || path.match(/^\/user\/([^/?]+)/);
+    return m ? m[1].toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
+chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+  const handle = tab?.url ? parseChannel(tab.url) : null;
+  if (!handle) return;
+
+  chrome.storage.local.get('allowlistedChannels', (data) => {
+    const list = data.allowlistedChannels || [];
+    const isAllowlisted = list.includes(handle);
+
+    document.getElementById('channel-handle').textContent = `@${handle}`;
+    document.getElementById('channel-status').textContent = isAllowlisted
+      ? 'On your allowlist'
+      : 'Not on allowlist';
+
+    const btn = document.getElementById('channel-allowlist-btn');
+    btn.textContent = isAllowlisted ? 'Remove' : 'Add to allowlist';
+    if (isAllowlisted) btn.classList.add('removing');
+
+    document.getElementById('channel-row').classList.remove('hidden');
+
+    btn.addEventListener('click', () => {
+      const updated = isAllowlisted
+        ? list.filter((c) => c !== handle)
+        : [...list, handle];
+      chrome.storage.local.set({ allowlistedChannels: updated });
+      window.close();
+    });
+  });
+});
+
 // --- Event listeners ---
 
 document.getElementById('calmMode').addEventListener('change', (e) => {

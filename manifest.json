@@ -5,7 +5,8 @@
   "description": "Reduce YouTube distractions for calmer, more intentional viewing.",
   "permissions": [
     "storage",
-    "alarms"
+    "alarms",
+    "activeTab"
   ],
   "host_permissions": [
     "*://*.youtube.com/*"

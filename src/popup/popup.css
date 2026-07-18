@@ -81,6 +81,71 @@ header a:hover {
   color: var(--text-muted);
 }
 
+/* --- Channel allowlist row --- */
+
+.channel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(110, 231, 183, 0.04);
+}
+
+.channel-row.hidden {
+  display: none;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.channel-handle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.channel-status {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+#channel-allowlist-btn {
+  flex-shrink: 0;
+  background: rgba(110, 231, 183, 0.1);
+  border: 1px solid rgba(110, 231, 183, 0.25);
+  color: var(--accent);
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 5px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+#channel-allowlist-btn:hover {
+  background: rgba(110, 231, 183, 0.18);
+}
+
+#channel-allowlist-btn.removing {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+#channel-allowlist-btn.removing:hover {
+  background: rgba(248, 113, 113, 0.15);
+}
+
 /* --- Section label --- */
 
 .section-label {
