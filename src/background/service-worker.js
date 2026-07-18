@@ -1,43 +1,6 @@
-const DEFAULTS = {
-  // Master toggle
-  calmMode: true,
-
-  // UI hiding
-  hideHomeFeed: true,
-  hideShorts: true,
-  hideSidebar: true,
-  hideComments: true,
-  hideEndScreen: true,
-  hideAutoplay: true,
-  hideInfoCards: true,
-  hideTrending: true,
-  hideNotificationBadge: true,
-  hideLiveChat: true,
-  hideMerch: true,
-
-  // Visual
-  grayscale: false,
-
-  // Time management
-  dailyLimitEnabled: false,
-  dailyLimitMinutes: 60,
-  sessionTimerVisible: true,
-
-  // Intentionality
-  intentionalityPrompt: false,
-
-  // Allowlist
-  allowlistedChannels: [],
-
-  // Per-day schedules (getDay(): 0=Sun … 6=Sat)
-  perDayLimitsEnabled: false,
-  perDayMinutes: { 0: 90, 1: 30, 2: 30, 3: 30, 4: 30, 5: 30, 6: 90 },
-
-  // Stats (managed internally — excluded from defaults reset)
-  watchToday: 0,
-  lastResetDate: '',
-  watchHistory: {},
-};
+import { todayStr, pruneHistory, getWeekDays } from '../lib/time.js';
+import { getEffectiveMinutes } from '../lib/limits.js';
+import { DEFAULTS } from '../lib/settings.js';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(null, (existing) => {
@@ -51,13 +14,9 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // --- Daily reset ---
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function checkDailyReset() {
   const today = todayStr();
-  chrome.storage.local.get(['lastResetDate', 'watchToday'], (data) => {
+  chrome.storage.local.get(['lastResetDate'], (data) => {
     if (data.lastResetDate !== today) {
       chrome.storage.local.set({ watchToday: 0, lastResetDate: today });
     }
@@ -79,32 +38,21 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       (data) => {
         const today = todayStr();
 
-        // Guard against the up-to-60s gap where the alarm hasn't fired yet
-        // but the date has already rolled over past midnight
+        // Self-heal the midnight gap in case the alarm hasn't fired yet
         const base = data.lastResetDate === today ? (data.watchToday || 0) : 0;
         const newTotal = base + 1;
 
-        // Roll today's seconds into the persistent history
-        const history = { ...(data.watchHistory || {}), [today]: newTotal };
-
-        // Prune entries older than 30 days
-        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-          .toISOString().slice(0, 10);
-        for (const d of Object.keys(history)) {
-          if (d < cutoff) delete history[d];
-        }
+        const history = pruneHistory({
+          ...(data.watchHistory || {}),
+          [today]: newTotal,
+        });
 
         const updates = { watchToday: newTotal, watchHistory: history };
         if (data.lastResetDate !== today) updates.lastResetDate = today;
         chrome.storage.local.set(updates);
 
-        let effectiveMinutes = data.dailyLimitMinutes || 60;
-        if (data.perDayLimitsEnabled && data.perDayMinutes) {
-          const dayOfWeek = new Date().getDay();
-          effectiveMinutes = data.perDayMinutes[dayOfWeek] ?? effectiveMinutes;
-        }
         sendResponse({
-          limitReached: data.dailyLimitEnabled && newTotal >= effectiveMinutes * 60,
+          limitReached: data.dailyLimitEnabled && newTotal >= getEffectiveMinutes(data) * 60,
           watchToday: newTotal,
         });
       }
@@ -122,14 +70,14 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === 'GET_WEEK_STATS') {
     chrome.storage.local.get('watchHistory', (data) => {
       const history = data.watchHistory || {};
-      const days = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-          .toISOString().slice(0, 10);
-        days.push({ date: d, seconds: history[d] || 0 });
-      }
-      const weekTotal = days.reduce((sum, d) => sum + d.seconds, 0);
-      sendResponse({ days, weekTotal });
+      const days = getWeekDays().map((date) => ({
+        date,
+        seconds: history[date] || 0,
+      }));
+      sendResponse({
+        days,
+        weekTotal: days.reduce((sum, d) => sum + d.seconds, 0),
+      });
     });
     return true;
   }

@@ -2,12 +2,18 @@
   "name": "youtube-calm",
   "version": "0.1.0",
   "description": "A browser extension for calmer, more intentional YouTube viewing.",
+  "type": "module",
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "dev": "web-ext run --source-dir . --browser-console",
     "pack": "web-ext build --source-dir . --artifacts-dir dist",
     "lint": "web-ext lint --source-dir ."
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.0.0",
+    "vitest": "^2.0.0",
     "web-ext": "^8.0.0"
   }
 }
