@@ -1,0 +1,13 @@
+{
+  "name": "youtube-calm",
+  "version": "0.1.0",
+  "description": "A browser extension for calmer, more intentional YouTube viewing.",
+  "scripts": {
+    "dev": "web-ext run --source-dir . --browser-console",
+    "pack": "web-ext build --source-dir . --artifacts-dir dist",
+    "lint": "web-ext lint --source-dir ."
+  },
+  "devDependencies": {
+    "web-ext": "^8.0.0"
+  }
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Calm — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>YouTube Calm</h1>
+      <p class="tagline">Calmer, more intentional viewing.</p>
+    </header>
+
+    <!-- Stats bar -->
+    <section class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="stat-today">—</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-week">—</div>
+        <div class="stat-label">This week</div>
+      </div>
+    </section>
+
+    <!-- Master toggle -->
+    <section class="card">
+      <div class="row">
+        <div>
+          <div class="row-title">Calm Mode</div>
+          <div class="row-desc">Master switch — disabling this restores all default YouTube behaviour.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-key="calmMode" />
+          <span class="track"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Hide section -->
+    <section class="card">
+      <h2>Hide</h2>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Home feed</div>
+          <div class="row-desc">Remove the recommended video grid from the homepage.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideHomeFeed" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Shorts</div>
+          <div class="row-desc">Remove Shorts from the nav, homepage, and search results.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideShorts" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Sidebar (related videos)</div>
+          <div class="row-desc">Hide the right-hand related videos panel. The player expands to fill the space.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideSidebar" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Comments</div>
+          <div class="row-desc">Hide the comments section below videos.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideComments" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">End screen</div>
+          <div class="row-desc">Remove the clickable cards that appear in the final seconds of a video.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideEndScreen" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Autoplay</div>
+          <div class="row-desc">Hide the autoplay countdown and prevent passive continuation.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideAutoplay" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Info cards</div>
+          <div class="row-desc">Hide the interactive cards that appear during playback.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideInfoCards" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Trending</div>
+          <div class="row-desc">Remove the Trending link from the left navigation.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideTrending" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Notification badge</div>
+          <div class="row-desc">Hide the unread notification count on the bell icon.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideNotificationBadge" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Live chat</div>
+          <div class="row-desc">Hide the live chat panel during streams.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideLiveChat" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Merchandise shelf</div>
+          <div class="row-desc">Remove the merch promotion section below videos.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="hideMerch" /><span class="track"></span></label>
+      </div>
+    </section>
+
+    <!-- Visual section -->
+    <section class="card">
+      <h2>Visual</h2>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Grayscale</div>
+          <div class="row-desc">Desaturate the YouTube interface. Makes thumbnails less visually stimulating.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="grayscale" /><span class="track"></span></label>
+      </div>
+    </section>
+
+    <!-- Time management section -->
+    <section class="card">
+      <h2>Time</h2>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Session timer</div>
+          <div class="row-desc">Show a small timer in the corner tracking time spent in this browser session.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="sessionTimerVisible" /><span class="track"></span></label>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Daily limit</div>
+          <div class="row-desc">Pause playback and show an overlay when your daily limit is reached.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="dailyLimitEnabled" id="limit-toggle" /><span class="track"></span></label>
+      </div>
+
+      <div class="sub-row" id="limit-minutes-row">
+        <label class="sub-label" for="daily-limit-input">Minutes per day</label>
+        <input type="number" id="daily-limit-input" min="5" max="480" step="5" />
+      </div>
+    </section>
+
+    <!-- Intentionality section -->
+    <section class="card">
+      <h2>Intentionality</h2>
+
+      <div class="row">
+        <div>
+          <div class="row-title">Intent prompt</div>
+          <div class="row-desc">Show a brief "What are you here for?" interstitial when you open the YouTube homepage.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" data-key="intentionalityPrompt" /><span class="track"></span></label>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer-actions">
+      <button id="reset-defaults">Reset to defaults</button>
+    </div>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+:root {
+  --bg: #111;
+  --surface: #1a1a1a;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8e8e8;
+  --text-muted: #777;
+  --accent: #6ee7b7; /* calm teal-green */
+  --toggle-off: #333;
+  --toggle-on: #4ade80;
+  --radius: 10px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 300px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding-bottom: 4px;
+}
+
+/* --- Header --- */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+
+header a {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+header a:hover {
+  color: var(--text);
+}
+
+/* --- Master row --- */
+
+.master-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.master-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.master-title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.master-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- Section label --- */
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 12px 16px 8px;
+}
+
+/* --- Toggle grid --- */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg);
+  gap: 8px;
+}
+
+.grid-item:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+
+.grid-label {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.3;
+  flex: 1;
+}
+
+/* --- Toggles --- */
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.track {
+  display: block;
+  width: 32px;
+  height: 18px;
+  background: var(--toggle-off);
+  border-radius: 9px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle input:checked + .track {
+  background: var(--toggle-on);
+}
+
+.toggle input:checked + .track::after {
+  transform: translateX(14px);
+}
+
+/* Larger master toggle */
+.toggle.large .track {
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+.toggle.large .track::after {
+  width: 18px;
+  height: 18px;
+  top: 3px;
+  left: 3px;
+}
+
+.toggle.large input:checked + .track::after {
+  transform: translateX(18px);
+}
+
+/* Dim grid when calm mode is off */
+body.calm-off .grid {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* --- Footer --- */
+
+footer {
+  padding: 12px 16px;
+  text-align: center;
+}
+
+footer a {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+footer a:hover {
+  color: var(--accent);
+}

@@ -1,0 +1,273 @@
+/* ===================================================================
+   YouTube Calm — content styles
+   All rules are gated by classes set on <html> by content.js.
+   YouTube selectors are volatile; update as needed when YT changes.
+   =================================================================== */
+
+/* --- Grayscale --- */
+
+.ytc-grayscale ytd-app {
+  filter: grayscale(100%);
+}
+
+/* --- Hide homepage feed --- */
+
+.ytc-hide-feed ytd-browse[page-subtype="home"] ytd-rich-grid-renderer,
+.ytc-hide-feed ytd-browse[page-subtype="home"] #contents.ytd-rich-grid-renderer {
+  display: none !important;
+}
+
+/* --- Hide Shorts everywhere --- */
+
+/* Nav sidebar entry */
+.ytc-hide-shorts ytd-guide-entry-renderer a[href="/shorts"],
+.ytc-hide-shorts ytd-mini-guide-entry-renderer a[href="/shorts"] {
+  display: none !important;
+}
+
+/* Tab strip on homepage */
+.ytc-hide-shorts [tab-identifier="FEshorts"] {
+  display: none !important;
+}
+
+/* Shorts shelves in home feed */
+.ytc-hide-shorts ytd-rich-shelf-renderer[is-shorts],
+.ytc-hide-shorts ytd-reel-shelf-renderer,
+.ytc-hide-shorts ytd-shorts {
+  display: none !important;
+}
+
+/* Shorts in search results */
+.ytc-hide-shorts ytd-reel-item-renderer,
+.ytc-hide-shorts ytd-video-renderer[is-shorts] {
+  display: none !important;
+}
+
+/* Shorts chip/filter in search */
+.ytc-hide-shorts yt-chip-cloud-chip-renderer[chip-style="STYLE_SHORTS"] {
+  display: none !important;
+}
+
+/* --- Hide sidebar (related videos) --- */
+
+.ytc-hide-sidebar #secondary,
+.ytc-hide-sidebar #related {
+  display: none !important;
+}
+
+/* Expand the player when the sidebar is gone */
+.ytc-hide-sidebar ytd-watch-flexy[flexy_] #primary.ytd-watch-flexy {
+  max-width: 100% !important;
+}
+
+/* --- Hide comments --- */
+
+.ytc-hide-comments #comments {
+  display: none !important;
+}
+
+/* --- Hide end screen elements --- */
+
+.ytc-hide-endscreen .ytp-ce-element,
+.ytc-hide-endscreen .ytp-endscreen-content {
+  display: none !important;
+}
+
+/* --- Hide autoplay prompt --- */
+
+.ytc-hide-autoplay .ytp-autonav-endscreen-upnext-container,
+.ytc-hide-autoplay .ytd-compact-autoplay-renderer,
+.ytc-hide-autoplay ytd-compact-autoplay-renderer {
+  display: none !important;
+}
+
+/* Also disable the toggle so it can't be re-enabled on the page */
+.ytc-hide-autoplay .ytp-autonav-toggle-button {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* --- Hide info cards --- */
+
+.ytc-hide-infocards .ytp-cards-teaser,
+.ytc-hide-infocards .iv-branding,
+.ytc-hide-infocards .ytp-cards-button {
+  display: none !important;
+}
+
+/* --- Hide Trending from nav --- */
+
+.ytc-hide-trending ytd-guide-entry-renderer a[href="/feed/trending"],
+.ytc-hide-trending ytd-guide-entry-renderer a[href*="FEtrending"] {
+  display: none !important;
+}
+
+/* --- Hide notification badge count --- */
+
+.ytc-hide-notif-badge #notification-count-renderer,
+.ytc-hide-notif-badge ytd-notification-topbar-button-renderer .badge {
+  display: none !important;
+}
+
+/* --- Hide live chat --- */
+
+.ytc-hide-livechat #chat,
+.ytc-hide-livechat ytd-live-chat-frame {
+  display: none !important;
+}
+
+/* --- Hide merchandise shelf --- */
+
+.ytc-hide-merch ytd-merch-shelf-renderer {
+  display: none !important;
+}
+
+/* ===================================================================
+   Session timer widget
+   =================================================================== */
+
+#ytc-session-timer {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 15, 15, 0.82);
+  color: #e8e8e8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, sans-serif;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  padding: 7px 14px;
+  border-radius: 20px;
+  z-index: 9999;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===================================================================
+   Daily limit overlay
+   =================================================================== */
+
+#ytc-limit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.92);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, sans-serif;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ytc-limit-box {
+  text-align: center;
+  color: #e8e8e8;
+  max-width: 380px;
+  padding: 0 24px;
+}
+
+.ytc-limit-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.ytc-limit-box h2 {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+.ytc-limit-box p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #aaa;
+  margin: 0 0 28px;
+}
+
+#ytc-limit-override {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #aaa;
+  font-size: 13px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+#ytc-limit-override:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+/* ===================================================================
+   Intentionality interstitial
+   =================================================================== */
+
+#ytc-interstitial {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.95);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, sans-serif;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ytc-interstitial-box {
+  text-align: center;
+  max-width: 400px;
+  padding: 0 24px;
+}
+
+.ytc-interstitial-box h2 {
+  font-size: 24px;
+  font-weight: 400;
+  color: #fff;
+  margin: 0 0 24px;
+  letter-spacing: -0.02em;
+}
+
+#ytc-intent-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  outline: none;
+  margin-bottom: 16px;
+}
+
+#ytc-intent-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+#ytc-intent-input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+#ytc-intent-go {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  padding: 10px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#ytc-intent-go:hover {
+  background: rgba(255, 255, 255, 0.18);
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Calm</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <span class="logo">YouTube Calm</span>
+    <a href="#" id="open-options" title="Full settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6.5 1h3l.4 1.6a5 5 0 0 1 1.2.7l1.6-.5 1.5 2.6-1.2 1.1a5 5 0 0 1 0 1.4l1.2 1.1-1.5 2.6-1.6-.5a5 5 0 0 1-1.2.7L9.5 13h-3l-.4-1.6A5 5 0 0 1 4.9 11l-1.6.5L1.8 9l1.2-1.1a5 5 0 0 1 0-1.4L1.8 5.4 3.3 2.8l1.6.5A5 5 0 0 1 6.1 2.6L6.5 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+    </a>
+  </header>
+
+  <div class="master-row">
+    <div class="master-label">
+      <span class="master-title">Calm Mode</span>
+      <span class="master-sub" id="watch-time">loading...</span>
+    </div>
+    <label class="toggle large" id="calm-mode-toggle">
+      <input type="checkbox" id="calmMode" />
+      <span class="track"></span>
+    </label>
+  </div>
+
+  <div class="section-label">Hide</div>
+  <div class="grid" id="toggle-grid">
+    <!-- populated by popup.js -->
+  </div>
+
+  <footer>
+    <a href="#" id="open-options-footer">All settings &amp; stats</a>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
