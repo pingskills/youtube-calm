@@ -6,13 +6,13 @@ const DEFAULTS = {
   hideHomeFeed: true,
   hideShorts: true,
   hideSidebar: true,
-  hideComments: false,
+  hideComments: true,
   hideEndScreen: true,
   hideAutoplay: true,
-  hideInfoCards: false,
+  hideInfoCards: true,
   hideTrending: true,
   hideNotificationBadge: true,
-  hideLiveChat: false,
+  hideLiveChat: true,
   hideMerch: true,
 
   // Visual
@@ -26,9 +26,13 @@ const DEFAULTS = {
   // Intentionality
   intentionalityPrompt: false,
 
-  // Stats (managed internally — do not expose in defaults reset)
+  // Allowlist
+  allowlistedChannels: [],
+
+  // Stats (managed internally — excluded from defaults reset)
   watchToday: 0,
   lastResetDate: '',
+  watchHistory: {},
 };
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -41,8 +45,14 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// --- Daily reset ---
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function checkDailyReset() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayStr();
   chrome.storage.local.get(['lastResetDate', 'watchToday'], (data) => {
     if (data.lastResetDate !== today) {
       chrome.storage.local.set({ watchToday: 0, lastResetDate: today });
@@ -50,20 +60,33 @@ function checkDailyReset() {
   });
 }
 
-// Check for midnight reset every minute
 chrome.alarms.create('midnightReset', { periodInMinutes: 1 });
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'midnightReset') checkDailyReset();
 });
 
-// Receive watch-time ticks from the content script
+// --- Message handlers ---
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+
   if (msg.type === 'TICK') {
     chrome.storage.local.get(
-      ['watchToday', 'dailyLimitEnabled', 'dailyLimitMinutes'],
+      ['watchToday', 'watchHistory', 'dailyLimitEnabled', 'dailyLimitMinutes'],
       (data) => {
+        const today = todayStr();
         const newTotal = (data.watchToday || 0) + 1;
-        chrome.storage.local.set({ watchToday: newTotal });
+
+        // Roll today's seconds into the persistent history
+        const history = { ...(data.watchHistory || {}), [today]: newTotal };
+
+        // Prune entries older than 30 days
+        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString().slice(0, 10);
+        for (const d of Object.keys(history)) {
+          if (d < cutoff) delete history[d];
+        }
+
+        chrome.storage.local.set({ watchToday: newTotal, watchHistory: history });
 
         const limitSeconds = (data.dailyLimitMinutes || 60) * 60;
         sendResponse({
@@ -72,7 +95,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         });
       }
     );
-    return true; // keep message channel open for async response
+    return true;
   }
 
   if (msg.type === 'GET_WATCH_TODAY') {
@@ -82,10 +105,26 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'GET_WEEK_STATS') {
+    chrome.storage.local.get('watchHistory', (data) => {
+      const history = data.watchHistory || {};
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+          .toISOString().slice(0, 10);
+        days.push({ date: d, seconds: history[d] || 0 });
+      }
+      const weekTotal = days.reduce((sum, d) => sum + d.seconds, 0);
+      sendResponse({ days, weekTotal });
+    });
+    return true;
+  }
+
   if (msg.type === 'RESET_DEFAULTS') {
     const resetable = { ...DEFAULTS };
     delete resetable.watchToday;
     delete resetable.lastResetDate;
+    delete resetable.watchHistory;
     chrome.storage.local.set(resetable, () => sendResponse({ ok: true }));
     return true;
   }

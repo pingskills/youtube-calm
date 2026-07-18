@@ -13,7 +13,7 @@
       <p class="tagline">Calmer, more intentional viewing.</p>
     </header>
 
-    <!-- Stats bar -->
+    <!-- Stats -->
     <section class="stats-bar">
       <div class="stat">
         <div class="stat-value" id="stat-today">—</div>
@@ -24,6 +24,11 @@
         <div class="stat-label">This week</div>
       </div>
     </section>
+
+    <!-- 7-day bar chart -->
+    <div class="week-chart-wrap">
+      <div class="week-chart" id="week-chart"></div>
+    </div>
 
     <!-- Master toggle -->
     <section class="card">
@@ -162,7 +167,7 @@
           <div class="row-title">Daily limit</div>
           <div class="row-desc">Pause playback and show an overlay when your daily limit is reached.</div>
         </div>
-        <label class="toggle"><input type="checkbox" data-key="dailyLimitEnabled" id="limit-toggle" /><span class="track"></span></label>
+        <label class="toggle"><input type="checkbox" data-key="dailyLimitEnabled" /><span class="track"></span></label>
       </div>
 
       <div class="sub-row" id="limit-minutes-row">
@@ -178,10 +183,29 @@
       <div class="row">
         <div>
           <div class="row-title">Intent prompt</div>
-          <div class="row-desc">Show a brief "What are you here for?" interstitial when you open the YouTube homepage.</div>
+          <div class="row-desc">Show a "What are you here for?" interstitial when you open the YouTube homepage.</div>
         </div>
         <label class="toggle"><input type="checkbox" data-key="intentionalityPrompt" /><span class="track"></span></label>
       </div>
+    </section>
+
+    <!-- Allowlist section -->
+    <section class="card">
+      <h2>Allowlist</h2>
+
+      <div class="row no-border">
+        <div>
+          <div class="row-title">Trusted channels</div>
+          <div class="row-desc">On these channels, sidebar and autoplay rules are relaxed — you're watching intentionally.</div>
+        </div>
+      </div>
+
+      <div class="allowlist-input-row">
+        <input type="text" id="allowlist-input" placeholder="@channelname" autocomplete="off" spellcheck="false" />
+        <button id="allowlist-add">Add</button>
+      </div>
+
+      <div id="allowlist-tags" class="allowlist-tags"></div>
     </section>
 
     <!-- Footer -->

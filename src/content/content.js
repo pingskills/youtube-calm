@@ -3,10 +3,9 @@ const SETTINGS_KEYS = [
   'hideEndScreen', 'hideAutoplay', 'hideInfoCards', 'hideTrending',
   'hideNotificationBadge', 'hideLiveChat', 'hideMerch', 'grayscale',
   'sessionTimerVisible', 'dailyLimitEnabled', 'dailyLimitMinutes',
-  'intentionalityPrompt',
+  'intentionalityPrompt', 'allowlistedChannels',
 ];
 
-// Maps each setting key to the CSS class it gates
 const CLASS_MAP = {
   hideHomeFeed: 'ytc-hide-feed',
   hideShorts: 'ytc-hide-shorts',
@@ -28,6 +27,23 @@ let tickInterval = null;
 let timerEl = null;
 let limitHit = false;
 
+// --- Channel detection ---
+
+function getCurrentChannel() {
+  const path = location.pathname;
+  const m = path.match(/^\/@([^/?]+)/)
+    || path.match(/^\/channel\/([^/?]+)/)
+    || path.match(/^\/c\/([^/?]+)/)
+    || path.match(/^\/user\/([^/?]+)/);
+  return m ? m[1].toLowerCase() : null;
+}
+
+function isCurrentChannelAllowlisted(s) {
+  const ch = getCurrentChannel();
+  if (!ch) return false;
+  return (s.allowlistedChannels || []).some((a) => a.toLowerCase() === ch);
+}
+
 // --- Settings application ---
 
 function applySettings(s) {
@@ -35,6 +51,9 @@ function applySettings(s) {
   const root = document.documentElement;
 
   root.classList.toggle('ytc-calm-mode', !!s.calmMode);
+
+  const allowlisted = isCurrentChannelAllowlisted(s);
+  root.classList.toggle('ytc-allowlisted', allowlisted);
 
   for (const [key, cls] of Object.entries(CLASS_MAP)) {
     root.classList.toggle(cls, !!(s.calmMode && s[key]));
@@ -57,12 +76,8 @@ function ensureTimer() {
     document.body.appendChild(timerEl);
     updateTimerDisplay();
   };
-
-  if (document.body) {
-    attach();
-  } else {
-    document.addEventListener('DOMContentLoaded', attach, { once: true });
-  }
+  if (document.body) attach();
+  else document.addEventListener('DOMContentLoaded', attach, { once: true });
 }
 
 function removeTimer() {
@@ -93,7 +108,6 @@ function startTicking() {
     if (!isPlaying()) return;
     sessionSeconds++;
     updateTimerDisplay();
-
     chrome.runtime.sendMessage({ type: 'TICK' }, (res) => {
       if (chrome.runtime.lastError) return;
       if (res?.limitReached && !limitHit) {
@@ -109,7 +123,6 @@ function startTicking() {
 function showLimitOverlay() {
   const v = document.querySelector('video');
   if (v) v.pause();
-
   if (document.getElementById('ytc-limit-overlay')) return;
 
   const overlay = document.createElement('div');
@@ -127,7 +140,6 @@ function showLimitOverlay() {
   document.getElementById('ytc-limit-override').addEventListener('click', () => {
     overlay.remove();
     limitHit = false;
-    // Subtract 5 minutes so the limit resets with grace
     chrome.storage.local.get('watchToday', (data) => {
       const reduced = Math.max(0, (data.watchToday || 0) - 300);
       chrome.storage.local.set({ watchToday: reduced });
@@ -159,18 +171,16 @@ function maybeShowInterstitial() {
       if (e.key === 'Enter') el.remove();
     });
   };
-
-  if (document.body) {
-    attach();
-  } else {
-    document.addEventListener('DOMContentLoaded', attach, { once: true });
-  }
+  if (document.body) attach();
+  else document.addEventListener('DOMContentLoaded', attach, { once: true });
 }
 
 // --- YouTube SPA navigation ---
 
 document.addEventListener('yt-navigate-finish', () => {
-  // Timer el may have been removed by YouTube's DOM swaps
+  // Re-evaluate allowlist on every navigation since the channel changes
+  applySettings(settings);
+
   if (settings.calmMode && settings.sessionTimerVisible) {
     if (!document.getElementById('ytc-session-timer')) {
       timerEl = null;

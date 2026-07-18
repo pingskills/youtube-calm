@@ -123,6 +123,38 @@
 }
 
 /* ===================================================================
+   Allowlisted channel — relax autoplay + sidebar so you can browse
+   a channel you chose to visit intentionally
+   =================================================================== */
+
+.ytc-allowlisted.ytc-hide-sidebar #secondary,
+.ytc-allowlisted.ytc-hide-sidebar #related {
+  display: revert !important;
+}
+
+.ytc-allowlisted.ytc-hide-sidebar ytd-watch-flexy[flexy_] #primary.ytd-watch-flexy {
+  max-width: revert !important;
+}
+
+.ytc-allowlisted.ytc-hide-autoplay .ytp-autonav-endscreen-upnext-container,
+.ytc-allowlisted.ytc-hide-autoplay .ytd-compact-autoplay-renderer,
+.ytc-allowlisted.ytc-hide-autoplay ytd-compact-autoplay-renderer {
+  display: revert !important;
+}
+
+.ytc-allowlisted.ytc-hide-autoplay .ytp-autonav-toggle-button {
+  pointer-events: revert;
+  opacity: revert;
+}
+
+/* Subtle badge so the user knows they're in allowlisted mode */
+.ytc-allowlisted #ytc-session-timer::before {
+  content: 'Allowlisted \2022 ';
+  color: #6ee7b7;
+  opacity: 0.7;
+}
+
+/* ===================================================================
    Session timer widget
    =================================================================== */
 
