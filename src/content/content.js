@@ -152,6 +152,8 @@ function showLimitOverlay() {
 function maybeShowInterstitial() {
   if (!settings.calmMode || !settings.intentionalityPrompt) return;
   if (!location.pathname.match(/^\/?$|^\/feed\/subscriptions/)) return;
+  // Only once per tab session — re-prompting on every homepage return feels like a toll booth
+  if (sessionStorage.getItem('ytc-intent-shown')) return;
   if (document.getElementById('ytc-interstitial')) return;
 
   const el = document.createElement('div');
@@ -164,11 +166,16 @@ function maybeShowInterstitial() {
     </div>
   `;
 
+  const dismiss = () => {
+    el.remove();
+    sessionStorage.setItem('ytc-intent-shown', '1');
+  };
+
   const attach = () => {
     document.body.appendChild(el);
-    document.getElementById('ytc-intent-go').addEventListener('click', () => el.remove());
+    document.getElementById('ytc-intent-go').addEventListener('click', dismiss);
     document.getElementById('ytc-intent-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') el.remove();
+      if (e.key === 'Enter') dismiss();
     });
   };
   if (document.body) attach();
