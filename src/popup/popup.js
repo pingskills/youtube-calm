@@ -1,3 +1,5 @@
+import { parseChannelFromUrl } from '../lib/channels.js';
+
 const TOGGLES = [
   { key: 'hideHomeFeed',          label: 'Home feed' },
   { key: 'hideShorts',            label: 'Shorts' },
@@ -50,21 +52,8 @@ chrome.runtime.sendMessage({ type: 'GET_WATCH_TODAY' }, (res) => {
 
 // --- Channel allowlist row ---
 
-function parseChannel(url) {
-  try {
-    const path = new URL(url).pathname;
-    const m = path.match(/^\/@([^/?]+)/)
-      || path.match(/^\/channel\/([^/?]+)/)
-      || path.match(/^\/c\/([^/?]+)/)
-      || path.match(/^\/user\/([^/?]+)/);
-    return m ? m[1].toLowerCase() : null;
-  } catch {
-    return null;
-  }
-}
-
 chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-  const handle = tab?.url ? parseChannel(tab.url) : null;
+  const handle = tab?.url ? parseChannelFromUrl(tab.url) : null;
   if (!handle) return;
 
   chrome.storage.local.get('allowlistedChannels', (data) => {

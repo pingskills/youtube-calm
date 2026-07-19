@@ -198,6 +198,18 @@ describe('service-worker', () => {
       const res = await sendMessage({ type: 'TICK' });
       expect(res.watchToday).toBe(8);
     });
+
+    it('handles undefined watchHistory gracefully (treats as empty)', async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      // Don't set watchHistory — leaves it undefined in storage
+      Object.assign(store, {
+        watchToday: 0,
+        lastResetDate: today,
+        dailyLimitEnabled: false,
+      });
+      await sendMessage({ type: 'TICK' });
+      expect(store.watchHistory[today]).toBe(1);
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -226,6 +238,13 @@ describe('service-worker', () => {
       store.watchHistory = {};
       const res = await sendMessage({ type: 'GET_WEEK_STATS' });
       expect(res.days.every((d) => d.seconds === 0)).toBe(true);
+    });
+
+    it('handles undefined watchHistory gracefully (treats as empty)', async () => {
+      // watchHistory not set in store at all
+      const res = await sendMessage({ type: 'GET_WEEK_STATS' });
+      expect(res.days).toHaveLength(7);
+      expect(res.weekTotal).toBe(0);
     });
 
     it("today's entry is the last in the array", async () => {
